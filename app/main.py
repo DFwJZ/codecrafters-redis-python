@@ -13,7 +13,8 @@ def main():
     # client_connection.send(b"+PONG\r\n")
     while True:
         client_connection.recv(1024)
-        client_connection.send(b"+PONG/r/n")
+        msg = b"+PONG\r\n"
+        client_connection.send(msg)
     
     
 if __name__ == "__main__":
