@@ -6,7 +6,7 @@ def handle_connection(client_connection, client_addr):
     while True:
         try:
             client_connection.recv(1024) # limit input to 1024 byte of data
-            msg = b"*1\r\n$4\r\nPONG\r\n"
+            msg = b"+PONG\r\n"
             client_connection.send(msg)
         except ConnectionError:
             break # handling if connection closed
