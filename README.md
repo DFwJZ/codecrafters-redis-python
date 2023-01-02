@@ -23,6 +23,12 @@ git push origin master
 
 That's all!
 
+## Building the port
+```sh
+server_socket = socket.create_server(("localhost", 6379), reuse_port=True) # 6379 for default redis port
+server_socket.accept() # wait for client input
+```
+
 # Stage 2 & beyond
 
 Note: This section is for stages 2 and beyond.
