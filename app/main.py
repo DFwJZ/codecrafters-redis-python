@@ -1,30 +1,35 @@
-# Uncomment this to pass the first stage
+
 import socket
 import threading
+ 
+from .resp_decoder import RESPDecoder
 
-def handle_connection(client_connection, client_addr):
+ 
+def handle_connection(client_connection):
     while True:
         try:
-            client_connection.recv(1024) # limit input to 1024 byte of data
-            msg = b"+PONG\r\n"
-            client_connection.send(msg)
-        except ConnectionError:
-            break # handling if connection closed
+            command, *args = RESPDecoder(client_connection).decode()
 
-def redis_connect():
+            print(f"Received command: {command}")
+
+            if command == b"ping":
+                client_connection.send(b"+PONG\r\n")
+            elif command == b"echo":
+                client_connection.send(b"$%d\r\n%b\r\n" % (len(args[0]), args[0]))
+            else:
+                client_connection.send(b"-ERR unknown command\r\n")
+        except ConnectionError:
+            break  # Stop serving if the client connection is closed
+ 
+ 
+def main():
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
 
-    print("start connecting.....")
-
     while True:
-        client_connection, client_addr = server_socket.accept()
-        threading.Thread(target=handle_connection, args=(client_connection,client_addr)).start()
-
-
-def main():
-    # You can use print statements as follows for debugging, they'll be visible when running tests.
-    print("Logs from your program will appear here!")
-    redis_connect()
-    
+        client_connection, _ = server_socket.accept()  # wait for client
+        threading.Thread(target=handle_connection, args=(client_connection,)).start()
+ 
+ 
 if __name__ == "__main__":
     main()
+
